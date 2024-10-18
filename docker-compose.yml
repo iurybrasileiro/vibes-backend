@@ -1,0 +1,10 @@
+services:
+  users:
+    container_name: users
+    build:
+      context: ./packages/users
+      dockerfile: Dockerfile
+    env_file:
+      - ./packages/users/.env
+    ports:
+      - '5000:5000'
