@@ -6,9 +6,8 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 
-import { parseValidationPipe } from 'utils/error'
-
 import { UsersModule } from './users.module'
+import { parseValidationPipe } from './utils'
 
 async function bootstrap() {
   const app = await NestFactory.create(UsersModule)

@@ -11,6 +11,4 @@ RUN pnpm install
 
 COPY . .
 
-RUN pnpm run build
-
-CMD ["pnpm", "run", "start:dev"]
+CMD ["pnpm", "run", "migration:run"]

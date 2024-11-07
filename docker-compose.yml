@@ -8,3 +8,29 @@ services:
       - ./packages/users/.env
     ports:
       - '5000:5000'
+
+  migrations:
+    container_name: migrations
+    build:
+      context: ./packages/migrations
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    restart: "no"
+
+  postgres:
+    container_name: vibes-postgres
+    image: postgres:latest
+    env_file:
+      - ./.env
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASS}
+      - POSTGRES_DB=${DATABASE_NAME}
+    ports:
+      - ${DATABASE_PORT}:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data: {}

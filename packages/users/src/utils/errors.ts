@@ -5,12 +5,12 @@ export const parseValidationPipe = (errors: ValidationError[]) => {
 
   if (!firstError) return undefined
 
-  if (firstError.children?.length)
+  if (firstError.children.length)
     return parseValidationPipe(firstError.children)
 
   const messages = Object.values(firstError.constraints)
 
-  if (!messages?.length) return undefined
+  if (!messages.length) return undefined
 
   const message = messages[0]
 
