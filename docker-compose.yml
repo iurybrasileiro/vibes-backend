@@ -5,6 +5,9 @@ services:
       context: ./packages/users
       dockerfile: Dockerfile
     command: "pnpm run start:dev"
+    volumes:
+      - ./packages/users:/app
+      - /app/node_modules
     env_file:
       - ./packages/users/.env
     ports:
@@ -21,6 +24,9 @@ services:
       context: ./packages/notifications
       dockerfile: Dockerfile
     command: "pnpm run start:dev"
+    volumes:
+      - ./packages/notifications:/app
+      - /app/node_modules
     env_file:
       - ./packages/notifications/.env
     depends_on:
@@ -32,6 +38,9 @@ services:
     build:
       context: ./packages/migrations
       dockerfile: Dockerfile
+    volumes:
+      - ./packages/migrations:/app
+      - /app/node_modules
     depends_on:
       - postgres
     restart: "no"
