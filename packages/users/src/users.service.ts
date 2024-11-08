@@ -2,10 +2,12 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ClientProxy } from '@nestjs/microservices'
 
+import { getTime } from 'date-fns'
 import { resolve } from 'path'
 import { lastValueFrom } from 'rxjs'
 
 import { NOTIFICATIONS_SERVICE } from './consts/services'
+import { type ConfirmAccountDto } from './dtos/confirm-account.dto'
 import { type CreateUserDto } from './dtos/create-user.dto'
 import { UsersRepository } from './users.repository'
 import { getEmailTemplate } from './utils'
@@ -47,5 +49,35 @@ export class UsersService {
         html: template.toString(),
       }),
     )
+  }
+
+  async confirmAccount(data: ConfirmAccountDto) {
+    const user = await this.usersRepository.findOne({
+      where: { email: data.email },
+    })
+
+    if (!user) {
+      throw new BadRequestException('Account not found')
+    }
+
+    if (user.verificated) {
+      throw new BadRequestException('Account already confirmed')
+    }
+
+    if (user.verification_code !== data.verification_code) {
+      throw new BadRequestException('The code provided is invalid')
+    }
+
+    if (
+      getTime(new Date()) > getTime(new Date(user.verification_code_expires_in))
+    ) {
+      throw new BadRequestException('The code provided is expired')
+    }
+
+    user.verificated = true
+    user.verification_code = null
+    user.verification_code_expires_in = null
+
+    await this.usersRepository.save(user)
   }
 }
