@@ -4,6 +4,7 @@ import { Response } from 'express'
 
 import { ConfirmAccountDto } from './dtos/confirm-account.dto'
 import { CreateUserDto } from './dtos/create-user.dto'
+import { RecoveryPasswordDto } from './dtos/recovery-password.dto'
 import { UsersService } from './users.service'
 
 @Controller()
@@ -33,6 +34,20 @@ export class UsersController {
     await this.usersService.confirmAccount(data)
     response.status(HttpStatus.OK).json({
       message: 'Account confirmed successfully',
+    })
+  }
+
+  @Patch('recovery-password')
+  async recoveryPassword(
+    @Body()
+    data: RecoveryPasswordDto,
+    @Res()
+    response: Response,
+  ) {
+    await this.usersService.recoveryPassword(data)
+    response.status(HttpStatus.OK).json({
+      message:
+        "You'll receive an email if we found an account registered with email",
     })
   }
 }
