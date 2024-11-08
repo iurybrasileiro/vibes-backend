@@ -10,8 +10,9 @@ import { NOTIFICATIONS_SERVICE } from './consts/services'
 import { type ConfirmAccountDto } from './dtos/confirm-account.dto'
 import { type CreateUserDto } from './dtos/create-user.dto'
 import { type RecoveryPasswordDto } from './dtos/recovery-password.dto'
+import { type ResetPasswordDto } from './dtos/reset-password.dto'
 import { UsersRepository } from './users.repository'
-import { generateCode, getEmailTemplate } from './utils'
+import { generateCode, getEmailTemplate, hashPassword } from './utils'
 
 @Injectable()
 export class UsersService {
@@ -119,5 +120,31 @@ export class UsersService {
         html: template.toString(),
       }),
     )
+  }
+
+  async resetPassword(data: ResetPasswordDto) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        email: data.email,
+      },
+    })
+
+    if (!user) {
+      throw new BadRequestException('Account not found')
+    }
+
+    if (user.reset_password_code !== data.reset_password_code) {
+      throw new BadRequestException('The code provided is invalid')
+    }
+
+    if (getTime(new Date()) > getTime(new Date(data.reset_password_code))) {
+      throw new BadRequestException('The code provided is expired')
+    }
+
+    user.reset_password_code = null
+    user.reset_password_code_expires_in = null
+    user.password = await hashPassword(data.password)
+
+    await this.usersRepository.save(user)
   }
 }
