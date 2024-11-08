@@ -4,6 +4,7 @@ services:
     build:
       context: ./packages/users
       dockerfile: Dockerfile
+    command: "pnpm run start:dev"
     env_file:
       - ./packages/users/.env
     ports:
@@ -19,6 +20,7 @@ services:
     build:
       context: ./packages/notifications
       dockerfile: Dockerfile
+    command: "pnpm run start:dev"
     env_file:
       - ./packages/notifications/.env
     depends_on:
