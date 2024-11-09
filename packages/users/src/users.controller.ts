@@ -1,4 +1,5 @@
 import { Body, Controller, HttpStatus, Patch, Post, Res } from '@nestjs/common'
+import { MessagePattern, Payload } from '@nestjs/microservices'
 
 import { Response } from 'express'
 
@@ -63,5 +64,24 @@ export class UsersController {
     response.status(HttpStatus.OK).json({
       message: 'Password recovered successfully',
     })
+  }
+
+  @MessagePattern('get-user-by-id')
+  async getUserById(@Payload() { id }: { id: string }) {
+    return await this.usersService.getUserById(id)
+  }
+
+  @MessagePattern('validate-user')
+  async validateUser(
+    @Payload() { email, password }: { email: string; password: string },
+  ) {
+    return await this.usersService.validate(email, password)
+  }
+
+  @MessagePattern('update-user-refresh-token')
+  async saveUserRefreshToken(
+    @Payload() { id, refresh_token }: { id: string; refresh_token: string },
+  ) {
+    return await this.usersService.saveUserRefreshToken(id, refresh_token)
   }
 }

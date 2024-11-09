@@ -17,6 +17,25 @@ services:
         condition: service_completed_successfully
       rabbitmq:
         condition: service_healthy
+
+  auth:
+    container_name: vibes-auth
+    build:
+      context: ./packages/auth
+      dockerfile: Dockerfile
+    command: "pnpm run start:dev"
+    volumes:
+      - ./packages/auth:/app
+      - /app/node_modules
+    env_file:
+      - ./packages/auth/.env
+    ports:
+      - '5001:5001'
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
   
   notifications:
     container_name: vibes-notifications

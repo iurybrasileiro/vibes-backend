@@ -1,4 +1,4 @@
-import { Exclude } from 'class-transformer'
+import { Exclude, instanceToPlain } from 'class-transformer'
 import { addDays } from 'date-fns'
 import {
   BaseEntity,
@@ -77,5 +77,9 @@ export class UserEntity extends BaseEntity {
     this.verification_code = generateCode()
     this.verification_code_expires_in = addDays(new Date(), 1)
     this.visibility = VISIBILITY.PUBLIC
+  }
+
+  toJSON() {
+    return instanceToPlain(this)
   }
 }

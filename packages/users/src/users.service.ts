@@ -12,7 +12,12 @@ import { type CreateUserDto } from './dtos/create-user.dto'
 import { type RecoveryPasswordDto } from './dtos/recovery-password.dto'
 import { type ResetPasswordDto } from './dtos/reset-password.dto'
 import { UsersRepository } from './users.repository'
-import { generateCode, getEmailTemplate, hashPassword } from './utils'
+import {
+  generateCode,
+  getEmailTemplate,
+  hashPassword,
+  validatePassword,
+} from './utils'
 
 @Injectable()
 export class UsersService {
@@ -146,5 +151,48 @@ export class UsersService {
     user.password = await hashPassword(data.password)
 
     await this.usersRepository.save(user)
+  }
+
+  async getUserById(id: string) {
+    const user = await this.usersRepository.findById(id)
+
+    if (!user) {
+      throw new BadRequestException('Account not found')
+    }
+    return { ...user }
+  }
+
+  async validate(email: string, password: string) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        email,
+      },
+    })
+
+    if (!user) {
+      throw new BadRequestException('Email or password invalid')
+    }
+
+    const is_password_valid = await validatePassword(password, user.password)
+
+    if (!is_password_valid) {
+      throw new BadRequestException('Email or password invalid')
+    }
+
+    return user.toJSON()
+  }
+
+  async saveUserRefreshToken(id: string, refresh_token: string) {
+    const user = await this.usersRepository.findById(id)
+
+    if (!user) {
+      throw new BadRequestException('Account not found')
+    }
+
+    user.refresh_token = refresh_token
+
+    await this.usersRepository.save(user)
+
+    return user.toJSON()
   }
 }

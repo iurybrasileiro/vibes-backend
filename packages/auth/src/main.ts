@@ -7,12 +7,12 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { Transport } from '@nestjs/microservices'
 
-import { USERS_SERVICE } from './consts/services'
-import { UsersModule } from './users.module'
+import { AuthModule } from './auth.module'
+import { AUTH_SERVICE } from './consts/services'
 import { parseValidationPipe } from './utils'
 
 async function bootstrap() {
-  const app = await NestFactory.create(UsersModule)
+  const app = await NestFactory.create(AuthModule)
   const configService = app.get(ConfigService)
 
   app.useGlobalPipes(
@@ -41,7 +41,7 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: [configService.getOrThrow('RABBITMQ_URI')],
-      queue: USERS_SERVICE,
+      queue: AUTH_SERVICE,
     },
   })
 
