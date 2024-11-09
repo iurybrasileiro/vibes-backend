@@ -15,6 +15,7 @@ import { Response } from 'express'
 import { CurrentUser } from './decorators/current-auth.decorator'
 import { ConfirmAccountDto } from './dtos/confirm-account.dto'
 import { CreateUserDto } from './dtos/create-user.dto'
+import { EditUserDto } from './dtos/edit-user.dto'
 import { RecoveryPasswordDto } from './dtos/recovery-password.dto'
 import { ResetPasswordDto } from './dtos/reset-password.dto'
 import { AccessTokenAuthGuard } from './guards/access-token-auth.guard'
@@ -47,6 +48,20 @@ export class UsersController {
     response.status(HttpStatus.CREATED).json({
       message: 'Your account has been successfully created',
     })
+  }
+
+  @Patch()
+  @UseGuards(AccessTokenAuthGuard)
+  async edit(
+    @CurrentUser('id')
+    id: string,
+    @Body()
+    data: EditUserDto,
+    @Res()
+    response: Response,
+  ) {
+    const user = await this.usersService.edit(id, data)
+    response.status(HttpStatus.OK).json(user)
   }
 
   @Patch('confirm-account')

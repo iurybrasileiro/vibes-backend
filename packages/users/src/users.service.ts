@@ -9,6 +9,7 @@ import { lastValueFrom } from 'rxjs'
 import { NOTIFICATIONS_SERVICE } from './consts/services'
 import { type ConfirmAccountDto } from './dtos/confirm-account.dto'
 import { type CreateUserDto } from './dtos/create-user.dto'
+import { type EditUserDto } from './dtos/edit-user.dto'
 import { type RecoveryPasswordDto } from './dtos/recovery-password.dto'
 import { type ResetPasswordDto } from './dtos/reset-password.dto'
 import { UsersRepository } from './users.repository'
@@ -56,6 +57,24 @@ export class UsersService {
         html: template.toString(),
       }),
     )
+  }
+
+  async edit(id: string, data: EditUserDto) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    })
+
+    if (!user) {
+      throw new BadRequestException('Account not found')
+    }
+
+    user.name = data.name
+    user.birthdate = new Date(data.birthdate)
+    user.visibility = data.visibility
+
+    await this.usersRepository.save(user)
+
+    return user
   }
 
   async confirmAccount(data: ConfirmAccountDto) {
