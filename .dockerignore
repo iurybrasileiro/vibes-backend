@@ -1,2 +1,3 @@
 **/node_modules
 **/dist
+!**/vibes-service-account.json

@@ -52,6 +52,21 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  storage:
+    container_name: vibes-storage
+    build:
+      context: ./packages/storage
+      dockerfile: Dockerfile
+    command: "pnpm run start:dev"
+    volumes:
+      - ./packages/storage:/app
+      - /app/node_modules
+    env_file:
+      - ./packages/storage/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   migrations:
     container_name: vibes-migrations
     build:
