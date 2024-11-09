@@ -1,4 +1,8 @@
-import { Exclude, instanceToPlain } from 'class-transformer'
+import {
+  instanceToPlain,
+  Exclude,
+  type ClassTransformOptions,
+} from 'class-transformer'
 import { addDays } from 'date-fns'
 import {
   BaseEntity,
@@ -79,7 +83,7 @@ export class UserEntity extends BaseEntity {
     this.visibility = VISIBILITY.PUBLIC
   }
 
-  toJSON() {
-    return instanceToPlain(this)
+  toJSON(options?: ClassTransformOptions) {
+    return instanceToPlain(this, options)
   }
 }

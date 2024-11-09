@@ -1,17 +1,40 @@
-import { Body, Controller, HttpStatus, Patch, Post, Res } from '@nestjs/common'
+import {
+  Get,
+  Res,
+  Body,
+  Post,
+  Patch,
+  UseGuards,
+  Controller,
+  HttpStatus,
+} from '@nestjs/common'
 import { MessagePattern, Payload } from '@nestjs/microservices'
 
 import { Response } from 'express'
 
+import { CurrentUser } from './decorators/current-auth.decorator'
 import { ConfirmAccountDto } from './dtos/confirm-account.dto'
 import { CreateUserDto } from './dtos/create-user.dto'
 import { RecoveryPasswordDto } from './dtos/recovery-password.dto'
 import { ResetPasswordDto } from './dtos/reset-password.dto'
+import { AccessTokenAuthGuard } from './guards/access-token-auth.guard'
+import { UserEntity } from './user.entity'
 import { UsersService } from './users.service'
 
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('profile')
+  @UseGuards(AccessTokenAuthGuard)
+  async profile(
+    @CurrentUser()
+    user: UserEntity,
+    @Res()
+    response: Response,
+  ) {
+    response.status(HttpStatus.OK).json(user)
+  }
 
   @Post()
   async create(

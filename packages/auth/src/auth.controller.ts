@@ -6,6 +6,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common'
+import { MessagePattern } from '@nestjs/microservices'
 
 import { Response } from 'express'
 
@@ -56,5 +57,14 @@ export class AuthController {
   ) {
     await this.authService.signOut(id)
     response.status(HttpStatus.OK).send()
+  }
+
+  @UseGuards(AccessTokenAuthGuard)
+  @MessagePattern('authenticate')
+  async authenticate(
+    @CurrentUser()
+    user: any,
+  ) {
+    return user
   }
 }

@@ -159,7 +159,7 @@ export class UsersService {
     if (!user) {
       throw new BadRequestException('Account not found')
     }
-    return { ...user }
+    return user.toJSON({ ignoreDecorators: true })
   }
 
   async validate(email: string, password: string) {

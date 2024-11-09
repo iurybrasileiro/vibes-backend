@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ClientsModule, Transport } from '@nestjs/microservices'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { NOTIFICATIONS_SERVICE } from './consts/services'
+import { AUTH_SERVICE, NOTIFICATIONS_SERVICE } from './consts/services'
 import { UserEntity } from './user.entity'
 import { UsersController } from './users.controller'
 import { UsersRepository } from './users.repository'
@@ -35,6 +35,17 @@ import { UsersService } from './users.service'
           options: {
             urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
             queue: NOTIFICATIONS_SERVICE,
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: AUTH_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
+            queue: AUTH_SERVICE,
           },
         }),
         inject: [ConfigService],
