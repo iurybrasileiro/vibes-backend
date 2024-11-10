@@ -4,13 +4,18 @@ import { ConfigService } from '@nestjs/config'
 import { type Bucket, Storage } from '@google-cloud/storage'
 import { randomUUID } from 'crypto'
 import { URL } from 'node:url'
+import { resolve } from 'path'
 
 import { type UploadFile } from './interfaces/upload-file.interface'
 
 @Injectable()
 export class StorageService {
   private readonly storage = new Storage({
-    keyFilename: 'apps/storage/src/service-accounts/vibes-service-account.json',
+    keyFilename: resolve(
+      __dirname,
+      'service-accounts',
+      'vibes-service-account.json',
+    ),
   })
 
   private readonly bucket: Bucket

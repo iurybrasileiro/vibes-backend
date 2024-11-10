@@ -6,7 +6,7 @@ import { addDays, getTime } from 'date-fns'
 import { resolve } from 'path'
 import { lastValueFrom } from 'rxjs'
 
-import { NOTIFICATIONS_SERVICE } from './consts/services'
+import { NOTIFICATIONS_SERVICE, STORAGE_SERVICE } from './consts/services'
 import { type ConfirmAccountDto } from './dtos/confirm-account.dto'
 import { type CreateUserDto } from './dtos/create-user.dto'
 import { type EditUserDto } from './dtos/edit-user.dto'
@@ -25,6 +25,8 @@ export class UsersService {
   constructor(
     @Inject(NOTIFICATIONS_SERVICE)
     private readonly notificationClient: ClientProxy,
+    @Inject(STORAGE_SERVICE)
+    private readonly storageClient: ClientProxy,
     private readonly usersRepository: UsersRepository,
     private readonly configService: ConfigService,
   ) {}
@@ -75,6 +77,76 @@ export class UsersService {
     await this.usersRepository.save(user)
 
     return user
+  }
+
+  async updateProfilePicture(id: string, file: Express.Multer.File) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    })
+
+    if (!user) {
+      throw new BadRequestException('Account not found')
+    }
+
+    const operations = [
+      lastValueFrom<string>(
+        this.storageClient.send('upload-file', {
+          location: `images/${id}`,
+          file,
+        }),
+      ),
+    ]
+
+    if (user.profile_picture) {
+      operations.push(
+        lastValueFrom(
+          this.storageClient.send('delete-file', user.profile_picture),
+        ),
+      )
+    }
+
+    const [profile_uri] = await Promise.all(operations)
+
+    user.profile_picture = profile_uri
+
+    await this.usersRepository.save(user)
+
+    return profile_uri
+  }
+
+  async updateCoverPicture(id: string, file: Express.Multer.File) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    })
+
+    if (!user) {
+      throw new BadRequestException('Account not found')
+    }
+
+    const operations = [
+      lastValueFrom<string>(
+        this.storageClient.send('upload-file', {
+          location: `images/${id}`,
+          file,
+        }),
+      ),
+    ]
+
+    if (user.cover_picture) {
+      operations.push(
+        lastValueFrom(
+          this.storageClient.send('delete-file', user.cover_picture),
+        ),
+      )
+    }
+
+    const [cover_uri] = await Promise.all(operations)
+
+    user.cover_picture = cover_uri
+
+    await this.usersRepository.save(user)
+
+    return cover_uri
   }
 
   async confirmAccount(data: ConfirmAccountDto) {

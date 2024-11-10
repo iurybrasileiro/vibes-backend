@@ -7,11 +7,18 @@ import {
   UseGuards,
   Controller,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common'
 import { MessagePattern, Payload } from '@nestjs/microservices'
+import { FileInterceptor } from '@nestjs/platform-express'
 
 import { Response } from 'express'
 
+import { ACEPTABLE_IMAGE_TYPES, MAX_PROFILE_IMAGE_SIZE } from './consts/files'
 import { CurrentUser } from './decorators/current-auth.decorator'
 import { ConfirmAccountDto } from './dtos/confirm-account.dto'
 import { CreateUserDto } from './dtos/create-user.dto'
@@ -62,6 +69,57 @@ export class UsersController {
   ) {
     const user = await this.usersService.edit(id, data)
     response.status(HttpStatus.OK).json(user)
+  }
+
+  @Patch('profile/picture')
+  @UseGuards(AccessTokenAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async updateProfilePicture(
+    @CurrentUser('id')
+    id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: MAX_PROFILE_IMAGE_SIZE }),
+          new FileTypeValidator({ fileType: ACEPTABLE_IMAGE_TYPES }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @Res()
+    response: Response,
+  ) {
+    const profile_picture = await this.usersService.updateProfilePicture(
+      id,
+      file,
+    )
+    response.status(HttpStatus.OK).json({
+      profile_picture,
+    })
+  }
+
+  @Patch('profile/cover')
+  @UseGuards(AccessTokenAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async updateCoverPicture(
+    @CurrentUser('id')
+    id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: MAX_PROFILE_IMAGE_SIZE }),
+          new FileTypeValidator({ fileType: ACEPTABLE_IMAGE_TYPES }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @Res()
+    response: Response,
+  ) {
+    const cover_picture = await this.usersService.updateCoverPicture(id, file)
+    response.status(HttpStatus.OK).json({
+      cover_picture,
+    })
   }
 
   @Patch('confirm-account')
