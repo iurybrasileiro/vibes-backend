@@ -11,7 +11,7 @@
 - [x] Should be able to confirm his account
 - [x] Should be able to edit his profile data
 - [x] Should be able to reset his password in case forgot it
-- [ ] Should be able search for user name
+- [x] Should be able search for user name
 - [ ] Should be able to see user profile in case it's public
 
 ## Friendship

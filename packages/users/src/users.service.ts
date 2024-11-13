@@ -5,6 +5,7 @@ import { ClientProxy } from '@nestjs/microservices'
 import { addDays, getTime } from 'date-fns'
 import { resolve } from 'path'
 import { lastValueFrom } from 'rxjs'
+import { Like, Not, Raw, type FindManyOptions } from 'typeorm'
 
 import { NOTIFICATIONS_SERVICE, STORAGE_SERVICE } from './consts/services'
 import { type ConfirmAccountDto } from './dtos/confirm-account.dto'
@@ -12,6 +13,8 @@ import { type CreateUserDto } from './dtos/create-user.dto'
 import { type EditUserDto } from './dtos/edit-user.dto'
 import { type RecoveryPasswordDto } from './dtos/recovery-password.dto'
 import { type ResetPasswordDto } from './dtos/reset-password.dto'
+import { type ListUsers } from './interfaces/list-users.interface'
+import { type UserEntity } from './user.entity'
 import { UsersRepository } from './users.repository'
 import {
   generateCode,
@@ -30,6 +33,39 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly configService: ConfigService,
   ) {}
+
+  async list(id: string, { name, page, take }: ListUsers) {
+    const main_filters = {
+      id: Not(id),
+      verificated: true,
+    }
+
+    const filter: FindManyOptions<UserEntity>['where'] = [main_filters]
+
+    if (name) {
+      filter.push({
+        name: Raw(alias => `SIMILARITY(${alias}, :term) > 0.1`, { term: name }),
+        ...main_filters,
+      })
+
+      filter.push({
+        name: Like(`%${name}%`),
+        ...main_filters,
+      })
+    }
+
+    const users = await this.usersRepository.findPaginated(filter, {
+      page,
+      take,
+    })
+
+    const modified_users = {
+      ...users,
+      data: users.data.map(user => user.toJSON()),
+    }
+
+    return modified_users
+  }
 
   async create(data: CreateUserDto) {
     let user = await this.usersRepository.findOne({

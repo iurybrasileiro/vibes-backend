@@ -12,6 +12,7 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
+  Query,
 } from '@nestjs/common'
 import { MessagePattern, Payload } from '@nestjs/microservices'
 import { FileInterceptor } from '@nestjs/platform-express'
@@ -32,6 +33,28 @@ import { UsersService } from './users.service'
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  @UseGuards(AccessTokenAuthGuard)
+  async list(
+    @CurrentUser('id')
+    id: string,
+    @Query('name')
+    name,
+    @Query('page')
+    page = 1,
+    @Query('take')
+    take = 10,
+    @Res()
+    response: Response,
+  ) {
+    const users = await this.usersService.list(id, {
+      name,
+      page,
+      take,
+    })
+    response.status(HttpStatus.OK).json(users)
+  }
 
   @Get('profile')
   @UseGuards(AccessTokenAuthGuard)
