@@ -13,6 +13,7 @@ import { type CreateUserDto } from './dtos/create-user.dto'
 import { type EditUserDto } from './dtos/edit-user.dto'
 import { type RecoveryPasswordDto } from './dtos/recovery-password.dto'
 import { type ResetPasswordDto } from './dtos/reset-password.dto'
+import { VISIBILITY } from './enums'
 import { type ListUsers } from './interfaces/list-users.interface'
 import { type UserEntity } from './user.entity'
 import { UsersRepository } from './users.repository'
@@ -65,6 +66,18 @@ export class UsersService {
     }
 
     return modified_users
+  }
+
+  async details(id: string) {
+    const user = await this.usersRepository.findById(id)
+
+    if (user.visibility === VISIBILITY.PRIVATE) {
+      user.birthdate = null
+      user.email = null
+      user.phone = null
+    }
+
+    return user.toJSON()
   }
 
   async create(data: CreateUserDto) {

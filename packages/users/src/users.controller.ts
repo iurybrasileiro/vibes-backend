@@ -13,6 +13,7 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
   Query,
+  Param,
 } from '@nestjs/common'
 import { MessagePattern, Payload } from '@nestjs/microservices'
 import { FileInterceptor } from '@nestjs/platform-express'
@@ -54,6 +55,18 @@ export class UsersController {
       take,
     })
     response.status(HttpStatus.OK).json(users)
+  }
+
+  @Get(':id')
+  @UseGuards(AccessTokenAuthGuard)
+  async details(
+    @Param('id')
+    id: string,
+    @Res()
+    response: Response,
+  ) {
+    const user = await this.usersService.details(id)
+    response.status(HttpStatus.OK).json(user)
   }
 
   @Get('profile')

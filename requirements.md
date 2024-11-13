@@ -12,7 +12,7 @@
 - [x] Should be able to edit his profile data
 - [x] Should be able to reset his password in case forgot it
 - [x] Should be able search for user name
-- [ ] Should be able to see user profile in case it's public
+- [x] Should be able to see user profile in case it's public
 
 ## Friendship
 
