@@ -45,7 +45,9 @@ export class UsersService {
 
     if (name) {
       filter.push({
-        name: Raw(alias => `SIMILARITY(${alias}, :term) > 0.1`, { term: name }),
+        name: Raw(alias => `SIM ILARITY(${alias}, :term) > 0.1`, {
+          term: name,
+        }),
         ...main_filters,
       })
 
@@ -62,7 +64,15 @@ export class UsersService {
 
     const modified_users = {
       ...users,
-      data: users.data.map(user => user.toJSON()),
+      data: users.data.map(user => {
+        if (user.visibility === VISIBILITY.PRIVATE) {
+          user.birthdate = null
+          user.email = null
+          user.phone = null
+        }
+
+        return user.toJSON()
+      }),
     }
 
     return modified_users
