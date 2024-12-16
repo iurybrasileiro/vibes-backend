@@ -1,5 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { RpcException } from '@nestjs/microservices'
 import { PassportStrategy } from '@nestjs/passport'
 
 import { ExtractJwt, Strategy } from 'passport-jwt'
@@ -31,7 +32,7 @@ export class AccessTokenAuthStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.authService.getUserById(id)
 
     if (!user) {
-      throw new UnauthorizedException('User not found')
+      throw new RpcException('User not found')
     }
 
     return user

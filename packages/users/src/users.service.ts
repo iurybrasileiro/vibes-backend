@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ClientProxy } from '@nestjs/microservices'
+import { ClientProxy, RpcException } from '@nestjs/microservices'
 
 import { addDays, getTime } from 'date-fns'
 import { resolve } from 'path'
@@ -307,8 +307,9 @@ export class UsersService {
     const user = await this.usersRepository.findById(id)
 
     if (!user) {
-      throw new BadRequestException('Account not found')
+      throw new RpcException('Account not found')
     }
+
     return user.toJSON({ ignoreDecorators: true })
   }
 
@@ -320,13 +321,13 @@ export class UsersService {
     })
 
     if (!user) {
-      throw new BadRequestException('Email or password invalid')
+      throw new RpcException('Email or password invalid')
     }
 
     const is_password_valid = await validatePassword(password, user.password)
 
     if (!is_password_valid) {
-      throw new BadRequestException('Email or password invalid')
+      throw new RpcException('Email or password invalid')
     }
 
     return user.toJSON()
@@ -336,7 +337,7 @@ export class UsersService {
     const user = await this.usersRepository.findById(id)
 
     if (!user) {
-      throw new BadRequestException('Account not found')
+      throw new RpcException('Account not found')
     }
 
     user.refresh_token = refresh_token
