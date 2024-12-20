@@ -23,13 +23,13 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
   async signIn(
-    @CurrentUser('id')
-    id: string,
+    @CurrentUser()
+    user: { id: string },
     @Res()
     response: Response,
   ) {
-    const tokens = await this.authService.signIn(id)
-    response.status(HttpStatus.OK).send(tokens)
+    const tokens = await this.authService.signIn(user.id)
+    response.status(HttpStatus.OK).send({ ...tokens, user })
   }
 
   @UseGuards(RefreshTokenAuthGuard)
