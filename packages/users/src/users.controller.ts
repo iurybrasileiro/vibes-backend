@@ -89,7 +89,8 @@ export class UsersController {
   ) {
     await this.usersService.create(data)
     response.status(HttpStatus.CREATED).json({
-      message: 'Your account has been successfully created',
+      message:
+        "Your account has been successfully created, you'll receive an email to confirm your account",
     })
   }
 
